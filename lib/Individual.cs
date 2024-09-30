@@ -5,7 +5,6 @@ namespace Lab1
         public int[] genes;
         public int Length => genes.Length;
         public int fitness;
-
         public Individual(int lengthChrom, int poleSize)
         {
             Random random = new Random();
@@ -14,13 +13,11 @@ namespace Lab1
                 genes[i] = random.Next(1, poleSize + 1);
             fitness = 0;
         }
-
         public Individual(int[] genes)
         {
             this.genes = (int[])genes.Clone();
             fitness = 0;
         } 
-
         public void Mutate(double mutPb, int poleSize)
         {
             Random random = new Random();
@@ -28,17 +25,15 @@ namespace Lab1
                 if (random.NextDouble() < mutPb)
                     genes[i] = random.Next(1, poleSize + 1);
         }
-
         public Individual Clone()
         {
             Individual clone = new Individual(genes);
             clone.fitness = this.fitness;
             return clone;
         }
-
-        public int CalculateFitness(int[] squareSizes, int poleSize)
+        public int Loss(int[] squareSizes, int poleSize)
         {
-            int min_x = 1000, min_y = 1000, max_x = -1, max_y = -1;
+            int min_x = int.MaxValue, min_y = int.MaxValue, max_x = int.MinValue, max_y = int.MinValue;
             for (int i = 0; i < genes.Length; i += 2)
             {
                 int square_x = genes[i], square_y = genes[i + 1], t = squareSizes[i / 2];
@@ -48,11 +43,10 @@ namespace Lab1
                 max_y = Math.Max(square_y + t, max_y);
             }
             if (Intersect(squareSizes, poleSize)) 
-                return 1000000;
+                return int.MaxValue;
             int area = (max_x - min_x) * (max_y - min_y);
             return area;
         }
-
         private bool Intersect(int[] squareSizes, int poleSize)
         {
             for (int i = 0; i < genes.Length; i += 2)

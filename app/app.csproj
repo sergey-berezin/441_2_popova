@@ -8,6 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Genetic.Lib.Polina" Version="1.2.6" />
+    <PackageReference Include="Genetic.Lib.Polina" Version="1.2.7" />
   </ItemGroup>
 </Project>

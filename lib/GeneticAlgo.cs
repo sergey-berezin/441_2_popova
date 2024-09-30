@@ -30,7 +30,6 @@
             }
             return offspring;
         }
-
         public static Tuple<Individual, Individual> Crossover(Individual ind1, Individual ind2)
         {
             Random random = new Random();
