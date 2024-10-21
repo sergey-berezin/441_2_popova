@@ -14,6 +14,8 @@ namespace Lab2
         private Individual[] population = null!;
         private int[] ideal_gen = null!;
         private PlotModel plotModel = null!;
+        private CancellationTokenSource cancellationTokenSource = null!;
+        private bool workInProgress = false; 
 
         public int Ideal_fitness {get; set;}
         public int NumberOf1x1 {get; set;}
@@ -57,6 +59,9 @@ namespace Lab2
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
+            if (workInProgress)
+                return;
+            workInProgress = true;
             square_sizes = 
                 Enumerable.Range(0, NumberOf1x1).Select(_ => 1).Concat(
                     Enumerable.Range(0, NumberOf2x2).Select(_ => 2).Concat(
@@ -66,10 +71,16 @@ namespace Lab2
             POLE_SIZE = (int)Math.Sqrt(NumberOf1x1 + NumberOf2x2 * 4 + NumberOf3x3 * 9) * 3;
             population = GeneticAlgo.PopulationCreator(500, LENGTH_CHROM, POLE_SIZE);
             Ideal_fitness = -1;
+            cancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
             await Task.Factory.StartNew(() =>
             {
                 for (int generation = 0; generation < 1000; generation++)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
                     Individual[] offspring = GeneticAlgo.SelTournament(population, population.Length);
                     for (int i = 0; i < offspring.Length; i += 2)
                         if (new Random().NextDouble() < 0.9)
@@ -99,10 +110,21 @@ namespace Lab2
                     });
                     Thread.Sleep(3);
                 }
-            }, TaskCreationOptions.LongRunning);
+                workInProgress = false; 
+            }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             DrawSquares();
             BestFitnessText.Text = $"Best Loss: {Ideal_fitness}";
-        }     
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (cancellationTokenSource != null)
+            {
+                cancellationTokenSource.Cancel();
+            }
+            DrawSquares();
+            BestFitnessText.Text = $"Best Loss: {Ideal_fitness}";
+        }
 
         private void DrawSquares()
         {

@@ -26,6 +26,8 @@
         <Label Grid.Column="0" Grid.Row="2" Content="3x3 Squares:" HorizontalAlignment="Left" Margin="15,50,0,0" VerticalAlignment="Top"/>
         <TextBox Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" Margin="15,80,0,0" TextWrapping="Wrap" Text="{Binding NumberOf3x3}" VerticalAlignment="Top" Width="220"/>    
 
+        <Button Name="StopButton" Content="Stop" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="15,80,0,0" VerticalAlignment="Top" Width="220" Click="StopButton_Click"/>
+
         <Button Name="StartButton" Content="Draw" Grid.Column="1" HorizontalAlignment="Left" Margin="15,80,0,0" Grid.Row="0" VerticalAlignment="Top" Width="220" Click="StartButton_Click"/>
         <oxy:PlotView x:Name="plotView" Grid.Column="3" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0,0,0,0" Grid.Row="0" Grid.RowSpan="3" Width="450" Height="450"/>
         <TextBlock Name="BestFitnessText" Grid.Column="2" Grid.Row="0" Width="220" Margin="15,80,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
