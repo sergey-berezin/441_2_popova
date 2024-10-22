@@ -8,6 +8,7 @@
 
 # VS Code
 .vscode/
+./lab2/.vs
 
 # Build results
 
