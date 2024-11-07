@@ -1,0 +1,11 @@
+<Window x:Class="Lab3.InputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Input Save Name" Height="150" Width="300" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid>
+        <Label Content="Enter save name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0"/>
+        <TextBox Name="InputTextBox" HorizontalAlignment="Left" Margin="10,40,0,0" VerticalAlignment="Top" Width="260"/>
+        <Button Content="OK" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="190,80,0,0" Width="80" Click="OK_Click"/>
+        <Button Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,80,0,0" Width="80" Click="Cancel_Click"/>
+    </Grid>
+</Window>
