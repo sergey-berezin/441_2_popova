@@ -63,48 +63,60 @@ namespace Lab3
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
+        public class GeneticAlgorithmData
+        {
+            public int generations {get; set;}
+            public int[][]? population_genes {get; set;}
+            public int[]? population_fitnesses {get; set;}
+            public int fitness {get; set;}
+            public int[]? gen {get; set;}
+            public int n_1x1 {get; set;}
+            public int n_2x2 {get; set;}
+            public int n_3x3 {get; set;}
+        }
         public void JsonLog(string runname, int current_generations, Individual[] current_population, int cur_ideal_fitness, int[] cur_ideal_gen, int _1x1, int _2x2, int _3x3)
         {
-            var d = new Dictionary<string, dynamic> 
+            var current_population_genes = new int[population_size][];
+            var current_population_fitnesses = new int[population_size];
+            for (var i = 0; i < population_size; i++)
             {
-                {"generations", current_generations},
-                {"population", current_population},
-                {"fitness", cur_ideal_fitness},
-                {"gen", cur_ideal_gen},
-                {"1x1", _1x1},
-                {"2x2", _2x2},
-                {"3x3", _3x3}
+                current_population_genes[i] = new int[LENGTH_CHROM];
+                current_population_genes[i] = current_population[i].genes;
+                current_population_fitnesses[i] = current_population[i].fitness;
+            }
+            var data = new GeneticAlgorithmData
+            {
+                generations = current_generations,
+                population_genes = current_population_genes,
+                population_fitnesses = current_population_fitnesses,
+                fitness = cur_ideal_fitness,
+                gen = cur_ideal_gen,
+                n_1x1 = _1x1,
+                n_2x2 = _2x2,
+                n_3x3 = _3x3
             };
             string old_json = File.ReadAllText("../data.json");
-            File.WriteAllText("../data_copy.json", old_json);
+            File.Copy("../data.json", "../data_copy.json");
+            Dictionary<string, GeneticAlgorithmData> all_data;
             if (old_json.Length != 0)
-            {
-                var old_dict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, dynamic>>>(old_json);
-                old_dict!.Add(runname, d!);
-                string json = JsonConvert.SerializeObject(old_dict);
-                File.WriteAllText("../data.json", json);
-            }
+                all_data = JsonConvert.DeserializeObject<Dictionary<string, GeneticAlgorithmData>>(old_json)!;
             else
-            {
-                var new_dict = new Dictionary<string, Dictionary<string, dynamic>> 
-                {
-                    {runname, d}
-                };
-                string json = JsonConvert.SerializeObject(new_dict);
-                File.WriteAllText("../data.json", json);
-            }
+                all_data = new Dictionary<string, GeneticAlgorithmData>();
+            all_data[runname] = data;
+            string json = JsonConvert.SerializeObject(all_data);
+            File.WriteAllText("../data.json", json);
             File.Delete("../data_copy.json");
         }
         public async void JsonRead(string name)
         {
             string json = File.ReadAllText("../data.json");
-            var d = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, dynamic>>>(json);
+            var d = JsonConvert.DeserializeObject<Dictionary<string, GeneticAlgorithmData>>(json);
             if (d!.ContainsKey(name))
             {
                 var experimentData = d[name];
-                NumberOf1x1 = (int)experimentData["1x1"];
-                NumberOf2x2 = (int)experimentData["2x2"];
-                NumberOf3x3 = (int)experimentData["3x3"];
+                NumberOf1x1 = experimentData.n_1x1;
+                NumberOf2x2 = experimentData.n_2x2;
+                NumberOf3x3 = experimentData.n_3x3;
                 SQUARES = NumberOf1x1 + NumberOf2x2 + NumberOf3x3;
                 LENGTH_CHROM = 2 * SQUARES;
                 POLE_SIZE = (int)Math.Sqrt(NumberOf1x1 + NumberOf2x2 * 4 + NumberOf3x3 * 9) * 3;
@@ -112,19 +124,22 @@ namespace Lab3
                     Enumerable.Range(0, NumberOf1x1).Select(_ => 1).Concat(
                         Enumerable.Range(0, NumberOf2x2).Select(_ => 2).Concat(
                             Enumerable.Range(0, NumberOf3x3).Select(_ => 3))).ToArray();
-                StartGeneration = (int)experimentData["generations"];
-                var ind_arr = experimentData["population"].ToObject<List<Dictionary<string, dynamic>>>();
+                StartGeneration = experimentData.generations;
                 population = new Individual[population_size];
-                int counter = 0;
-                foreach (var i in ind_arr)
+                var population_genes_ = new int[population_size][];
+                for (var i = 0; i < population_size; i++)
+                    population_genes_[i] = new int[LENGTH_CHROM];
+                population_genes_ = experimentData.population_genes;
+                var population_fitnesses_ = new int[population_size];
+                population_fitnesses_ = experimentData.population_fitnesses;
+                for (var i = 0; i < population_size; i++)
                 {
-                    population[counter] = new Individual(LENGTH_CHROM, POLE_SIZE);
-                    population[counter].genes = i["genes"].ToObject<int[]>();
-                    population[counter].fitness = (int)i["fitness"];
-                    counter++;
+                    population[i] = new Individual(LENGTH_CHROM, POLE_SIZE);
+                    population[i].genes = population_genes_![i];
+                    population[i].fitness = population_fitnesses_![i];
                 }
-                Ideal_fitness = (int)experimentData["fitness"];
-                ideal_gen = experimentData["gen"].ToObject<int[]>();
+                Ideal_fitness = experimentData.fitness;
+                ideal_gen = experimentData.gen!;
             }
             workInProgress = true;
             cancellationTokenSource = new CancellationTokenSource();
